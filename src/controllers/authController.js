@@ -1,4 +1,5 @@
-const User=require("../models/Index")
+const models = require("../models/Index");
+const { User } = models;
 // SignUp Api
 exports.signUp = async (req, res) => {
   try {
@@ -22,8 +23,7 @@ exports.signUp = async (req, res) => {
     res.status(201).json({
       success: true,
       user: user,
-      message:
-        "✅ Register Successull...!!!",
+      message: "✅ Register Successull...!!!",
     });
   } catch (error) {
     console.error("❌ Registration error:", error);
