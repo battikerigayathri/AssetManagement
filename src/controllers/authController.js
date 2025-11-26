@@ -1,5 +1,4 @@
-const models = require("../models/Index");
-const { User } = models;
+const { User } = require("../models/Index");
 // SignUp Api
 exports.signUp = async (req, res) => {
   try {
@@ -16,10 +15,7 @@ exports.signUp = async (req, res) => {
       email,
       password,
       role,
-      otp,
-      otpExpires,
     });
-
     res.status(201).json({
       success: true,
       user: user,
