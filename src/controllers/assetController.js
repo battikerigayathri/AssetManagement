@@ -1,4 +1,4 @@
-const { Asset, Category } = require("../models/Index");
+const { Asset, Category, User } = require("../models/Index");
 exports.create = async (req, res) => {
   try {
     const {
@@ -68,6 +68,77 @@ exports.list = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Server error during assets retrieval.",
+    });
+  }
+};
+exports.assignAsset = async (req, res) => {
+  try {
+    const { assetId, userId, issueDate, notes, force } = req.body;
+    if (!assetId || !userId) {
+      return res
+        .status(400)
+        .json({ success: false, message: "assetId and userId are required." });
+    }
+    const asset = await Asset.findById(assetId);
+    if (!asset)
+      return res
+        .status(404)
+        .json({ success: false, message: "Asset not found." });
+    const user = await User.findById(userId);
+    if (!user)
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found." });
+    if (asset.assigned_to && asset.assigned_to.toString() !== userId) {
+      if (!force) {
+        return res.status(409).json({
+          success: false,
+          message:
+            "Asset is already assigned to another user. Set `force=true` to override.",
+          assigned_to: asset.assigned_to,
+        });
+      }
+    }
+    const previousAssigned = asset.assigned_to
+      ? asset.assigned_to.toString()
+      : null;
+    asset.assigned_to = userId;
+    asset.notes = notes;
+    asset.issueDate = issueDate;
+    if (
+      asset.status === "In Storage" ||
+      asset.status === "Maintenance" ||
+      !asset.status
+    ) {
+      asset.status = "Active";
+    }
+    if (issueDate) {
+      asset.issueDate = new Date(issueDate);
+    }
+    await asset.save();
+    return res.status(200).json({
+      success: true,
+      message: "Asset assigned successfully.",
+      data: {
+        asset: asset,
+        previousAssigned,
+        issueDate: asset.issueDate,
+        notes: notes || null,
+      },
+    });
+  } catch (error) {
+    console.error("❌ Error assigning asset:", error);
+    if (error.name === "CastError") {
+      return res.status(400).json({
+        success: false,
+        message: `Invalid ID format provided for assetId or userId.`,
+        details: error.message,
+      });
+    }
+    return res.status(500).json({
+      success: false,
+      message: "Server error during asset assignment.",
+      details: error.message,
     });
   }
 };

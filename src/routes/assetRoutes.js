@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
-const { create, list } = require("../controllers/assetController");
+const { create, list, assignAsset } = require("../controllers/assetController");
 router.post("/create", create);
-router.get("/list",list);
+router.get("/list", list);
+router.post("/assign", assignAsset);
 module.exports = router;

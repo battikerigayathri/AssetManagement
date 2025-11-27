@@ -22,7 +22,9 @@ const assetSchema = new mongoose.Schema(
     },
     asset_image: {
       type: mongoose.Schema.ObjectId,
-      default: "File",
+      ref: "File",
+      default: null,
+      required: false,
     },
     status: {
       type: String,
@@ -40,6 +42,12 @@ const assetSchema = new mongoose.Schema(
     assigned_to: {
       type: mongoose.Schema.ObjectId,
       ref: "User",
+    },
+    notes: {
+      type: String,
+    },
+    issueDate: {
+      type: Date,
     },
   },
   {
