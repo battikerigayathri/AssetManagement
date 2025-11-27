@@ -1,4 +1,4 @@
-const { Asset } = require("../models/Index");
+const { Asset, Category } = require("../models/Index");
 exports.create = async (req, res) => {
   try {
     const {
@@ -16,12 +16,12 @@ exports.create = async (req, res) => {
         .status(400)
         .json({ message: "Missing required asset fields." });
     }
-    // const foundCategory = await Category.findById(category_id);
-    // if (!foundCategory) {
-    //   return res
-    //     .status(404)
-    //     .json({ message: "The provided category ID does not exist." });
-    // }
+    const foundCategory = await Category.findById(category_id);
+    if (!foundCategory) {
+      return res
+        .status(404)
+        .json({ message: "The provided category ID does not exist." });
+    }
     const existingAsset = await Asset.findOne({ serial_number });
     if (existingAsset) {
       return res
@@ -30,7 +30,7 @@ exports.create = async (req, res) => {
     }
     const newAsset = await Asset.create({
       asset_name,
-      // category: category_id,
+      category: category_id,
       serial_number,
       purchase_date,
       cost,
@@ -52,5 +52,22 @@ exports.create = async (req, res) => {
       return res.status(400).json({ message: "Invalid Category ID format." });
     }
     res.status(500).json({ message: "Server error during asset creation." });
+  }
+};
+exports.list = async (req, res) => {
+  try {
+    const assets = await Asset.find({}).sort({ serial_number: 1 }).lean();
+    res.status(200).json({
+      success: true,
+      count: assets.length,
+      data: assets,
+      message: "Assets retrieved successfully.",
+    });
+  } catch (error) {
+    console.error("❌ Error retrieving categories:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error during assets retrieval.",
+    });
   }
 };

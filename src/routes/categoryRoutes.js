@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { create } = require("../controllers/categoryController");
+const { create, list } = require("../controllers/categoryController");
 router.post("/create", create);
+router.get("/list", list);
 module.exports = router;
